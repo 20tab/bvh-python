@@ -1,5 +1,6 @@
 import re
 
+
 class BvhNode:
 
     def __init__(self, value=[], parent=None):
@@ -56,6 +57,7 @@ class Bvh:
                     accumulator = ''
         node_stack = [self.root]
         frame_time_found = False
+        node = None
         for item in first_round:
             if frame_time_found:
                 self.frames.append(item)
@@ -73,10 +75,11 @@ class Bvh:
 
     def search(self, *items):
         found_nodes = []
+
         def check_children(node):
             if len(node.value) >= len(items):
                 failed = False
-                for index, item in enumerate(items): 
+                for index, item in enumerate(items):
                     if node.value[index] != item:
                         failed = True
                         break
@@ -89,8 +92,19 @@ class Bvh:
 
     def get_joints(self):
         joints = []
+
         def iterate_joints(joint):
             joints.append(joint)
+            for child in joint.filter('JOINT'):
+                iterate_joints(child)
+        iterate_joints(next(self.root.filter('ROOT')))
+        return joints
+
+    def get_joints_names(self):
+        joints = []
+
+        def iterate_joints(joint):
+            joints.append(joint.value[1])
             for child in joint.filter('JOINT'):
                 iterate_joints(child)
         iterate_joints(next(self.root.filter('ROOT')))
@@ -120,17 +134,17 @@ class Bvh:
         index = 0
         for joint in self.get_joints():
             if joint.value[1] == joint_name:
-                return index 
+                return index
             index += int(joint['CHANNELS'][0])
         raise LookupError('joint not found')
 
-    def frame_joint_channel(self, frame_index, joint, channel, default_value=None):
+    def frame_joint_channel(self, frame_index, joint, channel, value=None):
         joint_index = self.get_joint_channels_index(joint)
-        channel_index = self.joint_channels(joint).index(channel)  
-        if channel_index == -1 and default_value is not None:
-            return default_value
+        channel_index = self.joint_channels(joint).index(channel)
+        if channel_index == -1 and value is not None:
+            return value
         return float(self.frames[frame_index][joint_index + channel_index])
-        
+
     @property
     def nframes(self):
         try:
@@ -144,4 +158,3 @@ class Bvh:
             return float(next(self.root.filter('Frame')).value[2])
         except StopIteration:
             raise LookupError('frame time not found')
-        

@@ -130,7 +130,11 @@ class TestBvh(unittest.TestCase):
         for i in range(0, mocap.nframes):
             x_accumulator += mocap.frame_joint_channel(i, 'Hips', 'Xposition') 
         self.assertTrue(abs(-19735.902699999995 - x_accumulator) < 0.0001)
-    
+
+    def test_joints_names(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        self.assertEqual(mocap.get_joints_names()[17], 'RightKnee')
 
 
 if __name__ == '__main__':
