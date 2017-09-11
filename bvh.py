@@ -36,6 +36,10 @@ class BvhNode:
     def __repr__(self):
         return str(' '.join(self.value))
 
+    @property
+    def name(self):
+        return self.value[1]
+
 
 class Bvh:
 
@@ -144,6 +148,18 @@ class Bvh:
         if channel_index == -1 and value is not None:
             return value
         return float(self.frames[frame_index][joint_index + channel_index])
+
+    def joint_parent(self, name):
+        joint = self.get_joint(name)
+        if joint.parent == self.root:
+            return None
+        return joint.parent
+
+    def joint_parent_index(self, name):
+        joint = self.get_joint(name)
+        if joint.parent == self.root:
+            return -1
+        return self.get_joints().index(joint.parent)
 
     @property
     def nframes(self):

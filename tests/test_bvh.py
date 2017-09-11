@@ -136,6 +136,18 @@ class TestBvh(unittest.TestCase):
             mocap = Bvh(f.read())
         self.assertEqual(mocap.get_joints_names()[17], 'RightKnee')
 
+    def test_joint_parent_index(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        self.assertEqual(mocap.joint_parent_index('Hips'), -1)
+        self.assertEqual(mocap.joint_parent_index('Chest'), 0)
+        self.assertEqual(mocap.joint_parent_index('LeftShoulder'), 3)
+
+    def test_joint_parent(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        self.assertEqual(mocap.joint_parent('Chest').name, 'Hips')
+
 
 if __name__ == '__main__':
     unittest.main()
