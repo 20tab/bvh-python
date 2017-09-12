@@ -149,6 +149,36 @@ class Bvh:
             return value
         return float(self.frames[frame_index][joint_index + channel_index])
 
+    def frame_joint_channels(self, frame_index, joint, channels, value=None):
+        values = []
+        joint_index = self.get_joint_channels_index(joint)
+        for channel in channels:
+            channel_index = self.joint_channels(joint).index(channel)
+            if channel_index == -1 and value is not None:
+                values.append(value)
+            else:
+                values.append(
+                    float(
+                        self.frames[frame_index][joint_index + channel_index]
+                    )
+                )
+        return values
+
+    def frames_joint_channels(self, joint, channels, value=None):
+        all_frames = []
+        joint_index = self.get_joint_channels_index(joint)
+        for frame in self.frames:
+            values = []
+            for channel in channels:
+                channel_index = self.joint_channels(joint).index(channel)
+                if channel_index == -1 and value is not None:
+                    values.append(value)
+                else:
+                    values.append(
+                        float(frame[joint_index + channel_index]))
+            all_frames.append(values)
+        return all_frames
+
     def joint_parent(self, name):
         joint = self.get_joint(name)
         if joint.parent == self.root:

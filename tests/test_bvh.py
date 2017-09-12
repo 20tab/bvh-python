@@ -148,6 +148,18 @@ class TestBvh(unittest.TestCase):
             mocap = Bvh(f.read())
         self.assertEqual(mocap.joint_parent('Chest').name, 'Hips')
 
+    def test_frame_joint_multi_channels(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        rotation = mocap.frame_joint_channels(30, 'Head', ['Xrotation', 'Yrotation', 'Zrotation']) 
+        self.assertEqual(rotation, [1.77, 13.94, -7.42])
+
+    def test_frames_multi_channels(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        rotations = mocap.frames_joint_channels('Head', ['Xrotation', 'Yrotation', 'Zrotation']) 
+        self.assertEqual(len(rotations), mocap.nframes)
+
 
 if __name__ == '__main__':
     unittest.main()
