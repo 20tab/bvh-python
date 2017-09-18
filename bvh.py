@@ -27,11 +27,11 @@ class BvhNode:
         for child in self.children:
             for index, item in enumerate(child.value):
                 if item == key:
-                    if index+1 >= len(child.value):
+                    if index + 1 >= len(child.value):
                         return None
                     else:
-                        return child.value[index+1:]
-        raise IndexError('key {0} not found'.format(key))
+                        return child.value[index + 1:]
+        raise IndexError('key {} not found'.format(key))
 
     def __repr__(self):
         return str(' '.join(self.value))
