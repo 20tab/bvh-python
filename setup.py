@@ -8,4 +8,5 @@ setup(name='bvh',
       author='20Tab S.r.l.',
       author_email='info@20tab.com',
       url='https://github.com/20tab/bvh-python',
-      py_modules=['bvh'])
+      py_modules=['bvh'],
+      )

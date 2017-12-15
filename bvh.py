@@ -55,8 +55,7 @@ class Bvh:
         for char in self.data:
             if char not in ('\n', '\r'):
                 accumulator += char
-            else:
-                if accumulator:
+            elif accumulator:
                     first_round.append(re.split('\\s+', accumulator.strip()))
                     accumulator = ''
         node_stack = [self.root]
