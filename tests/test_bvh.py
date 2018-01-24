@@ -1,4 +1,5 @@
 import unittest
+
 from bvh import Bvh, BvhNode
 
 
@@ -16,12 +17,16 @@ class TestBvh(unittest.TestCase):
     def test_tree(self):
         with open('tests/test_freebvh.bvh') as f:
             mocap = Bvh(f.read())
-        self.assertEqual([str(item) for item in mocap.root], ['HIERARCHY', 'ROOT mixamorig:Hips', 'MOTION', 'Frames: 69', 'Frame Time: 0.0333333'])
+        self.assertEqual([str(item) for item in mocap.root],
+                         ['HIERARCHY', 'ROOT mixamorig:Hips', 'MOTION', 'Frames: 69', 'Frame Time: 0.0333333']
+                         )
 
     def test_tree2(self):
         with open('tests/test_mocapbank.bvh') as f:
             mocap = Bvh(f.read())
-        self.assertEqual([str(item) for item in mocap.root], ['HIERARCHY', 'ROOT Hips', 'MOTION', 'Frames: 455', 'Frame Time: 0.033333'])
+        self.assertEqual([str(item) for item in mocap.root],
+                         ['HIERARCHY', 'ROOT Hips', 'MOTION', 'Frames: 455', 'Frame Time: 0.033333']
+                         )
 
     def test_filter(self):
         with open('tests/test_freebvh.bvh') as f:
@@ -32,6 +37,7 @@ class TestBvh(unittest.TestCase):
         bones = []
         with open('tests/test_freebvh.bvh') as f:
             mocap = Bvh(f.read())
+
         def iterate_joints(joint):
             bones.append(str(joint))
             for child in joint.filter('JOINT'):
@@ -108,7 +114,9 @@ class TestBvh(unittest.TestCase):
         with open('tests/test_mocapbank.bvh') as f:
             mocap = Bvh(f.read())
         self.assertEqual(mocap.joint_channels('LeftElbow'), ['Zrotation', 'Xrotation', 'Yrotation'])
-        self.assertEqual(mocap.joint_channels('Hips'), ['Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Xrotation', 'Yrotation'])
+        self.assertEqual(mocap.joint_channels('Hips'),
+                         ['Xposition', 'Yposition', 'Zposition', 'Zrotation', 'Xrotation', 'Yrotation']
+                         )
 
     def test_frame_channel(self):
         with open('tests/test_mocapbank.bvh') as f:
@@ -118,7 +126,7 @@ class TestBvh(unittest.TestCase):
         self.assertEqual(mocap.frame_joint_channel(22, 'Neck', 'Xrotation'), -6.77)
         self.assertEqual(mocap.frame_joint_channel(22, 'Head', 'Yrotation'), 8.47)
 
-    def test_frame_channel(self):
+    def test_frame_channel2(self):
         with open('tests/test_freebvh.bvh') as f:
             mocap = Bvh(f.read())
         self.assertEqual(mocap.frame_joint_channel(22, 'mixamorig:Hips', 'Xposition'), 4.3314)
@@ -128,7 +136,7 @@ class TestBvh(unittest.TestCase):
             mocap = Bvh(f.read())
         x_accumulator = 0.0
         for i in range(0, mocap.nframes):
-            x_accumulator += mocap.frame_joint_channel(i, 'Hips', 'Xposition') 
+            x_accumulator += mocap.frame_joint_channel(i, 'Hips', 'Xposition')
         self.assertTrue(abs(-19735.902699999995 - x_accumulator) < 0.0001)
 
     def test_joints_names(self):
@@ -151,16 +159,15 @@ class TestBvh(unittest.TestCase):
     def test_frame_joint_multi_channels(self):
         with open('tests/test_mocapbank.bvh') as f:
             mocap = Bvh(f.read())
-        rotation = mocap.frame_joint_channels(30, 'Head', ['Xrotation', 'Yrotation', 'Zrotation']) 
+        rotation = mocap.frame_joint_channels(30, 'Head', ['Xrotation', 'Yrotation', 'Zrotation'])
         self.assertEqual(rotation, [1.77, 13.94, -7.42])
 
     def test_frames_multi_channels(self):
         with open('tests/test_mocapbank.bvh') as f:
             mocap = Bvh(f.read())
-        rotations = mocap.frames_joint_channels('Head', ['Xrotation', 'Yrotation', 'Zrotation']) 
+        rotations = mocap.frames_joint_channels('Head', ['Xrotation', 'Yrotation', 'Zrotation'])
         self.assertEqual(len(rotations), mocap.nframes)
 
 
 if __name__ == '__main__':
     unittest.main()
-
