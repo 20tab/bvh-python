@@ -141,9 +141,17 @@ class Bvh:
             index += int(joint['CHANNELS'][0])
         raise LookupError('joint not found')
 
+    def get_joint_channel_index(self, joint, channel):
+        channels = self.joint_channels(joint)
+        if channel in channels:
+            channel_index = channels.index(channel)
+        else:
+            channel_index = -1
+        return channel_index
+        
     def frame_joint_channel(self, frame_index, joint, channel, value=None):
         joint_index = self.get_joint_channels_index(joint)
-        channel_index = self.joint_channels(joint).index(channel)
+        channel_index = self.get_joint_channel_index(joint, channel)
         if channel_index == -1 and value is not None:
             return value
         return float(self.frames[frame_index][joint_index + channel_index])
@@ -152,7 +160,7 @@ class Bvh:
         values = []
         joint_index = self.get_joint_channels_index(joint)
         for channel in channels:
-            channel_index = self.joint_channels(joint).index(channel)
+            channel_index = self.get_joint_channel_index(joint, channel)
             if channel_index == -1 and value is not None:
                 values.append(value)
             else:
@@ -169,7 +177,7 @@ class Bvh:
         for frame in self.frames:
             values = []
             for channel in channels:
-                channel_index = self.joint_channels(joint).index(channel)
+                channel_index = self.get_joint_channel_index(joint, channel)
                 if channel_index == -1 and value is not None:
                     values.append(value)
                 else:
