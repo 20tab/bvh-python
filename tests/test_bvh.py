@@ -126,6 +126,11 @@ class TestBvh(unittest.TestCase):
         self.assertEqual(mocap.frame_joint_channel(22, 'Neck', 'Xrotation'), -6.77)
         self.assertEqual(mocap.frame_joint_channel(22, 'Head', 'Yrotation'), 8.47)
 
+    def test_frame_channel_fallback(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        self.assertEqual(mocap.frame_joint_channel(22, 'Hips', 'Badrotation', 17), 17)
+
     def test_frame_channel2(self):
         with open('tests/test_freebvh.bvh') as f:
             mocap = Bvh(f.read())
