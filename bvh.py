@@ -113,6 +113,10 @@ class Bvh:
         iterate_joints(next(self.root.filter('ROOT')))
         return joints
 
+    def joint_direct_children(self, name):
+        joint = self.get_joint(name)
+        return [child for child in joint.filter('JOINT')]
+
     def get_joint_index(self, name):
         return self.get_joints().index(self.get_joint(name))
 
