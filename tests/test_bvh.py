@@ -173,6 +173,14 @@ class TestBvh(unittest.TestCase):
         rotations = mocap.frames_joint_channels('Head', ['Xrotation', 'Yrotation', 'Zrotation'])
         self.assertEqual(len(rotations), mocap.nframes)
 
-
+    def test_joint_children(self):
+        with open('tests/test_mocapbank.bvh') as f:
+            mocap = Bvh(f.read())
+        self.assertEqual(mocap.joint_direct_children('Chest')[0].name, 'Chest2')
+        self.assertEqual(mocap.joint_direct_children('Hips')[0].name, 'Chest')
+        self.assertEqual(mocap.joint_direct_children('Hips')[1].name, 'LeftHip')
+        self.assertEqual(mocap.joint_direct_children('Hips')[2].name, 'RightHip')
+        self.assertEqual(mocap.joint_direct_children('RightWrist'), [])
+        
 if __name__ == '__main__':
     unittest.main()
