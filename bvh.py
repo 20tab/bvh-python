@@ -58,6 +58,10 @@ class Bvh:
             elif accumulator:
                     first_round.append(re.split('\\s+', accumulator.strip()))
                     accumulator = ''
+        else: #at the end of the loop, appends the current contents of the accumulator if it is not empty
+            if accumulator:
+                first_round.append(re.split('\\s+', accumulator.strip()))
+                accumulator = ''
         node_stack = [self.root]
         frame_time_found = False
         node = None
