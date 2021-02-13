@@ -215,3 +215,38 @@ class Bvh:
             return float(next(self.root.filter('Frame')).value[2])
         except StopIteration:
             raise LookupError('frame time not found')
+            
+    @property
+    def raw_data(self):
+        _, root, _, _, _ = self.root
+        data = "HIERARCHY\n"
+        
+        data, depth = self.write_node(root, data, 0)
+        
+        data += "MOTION\n"
+        data += f"Frames:\t{self.nframes}\n"
+        data += f"Frame Time:\t{self.frame_time}\n"
+        
+        for frame in self.frames:
+            data += "\t".join(frame)+"\n"
+            
+        return data
+    
+    def write_node(self, node, data, depth):
+        n_type = node.value[0]
+        
+        data += "\t"*depth + "\t".join(node.value) + "\n"
+        data += "\t"*depth + "{\n"
+        data += "\t"*(depth+1) + "\t".join(node.children[0].value) + "\n"
+        if n_type != 'End':
+            data += "\t"*(depth+1) + "\t".join(node.children[1].value) + "\n"
+        for child in node.children[2:]:
+            depth += 1
+            data, depth = self.write_node(child, data, depth)
+        data += "\t"*depth + "}\n"
+        depth -= 1
+        return data, depth
+    
+    def save(self, save_path):
+        with open(save_path, 'w') as f:
+            f.write(self.raw_data)
