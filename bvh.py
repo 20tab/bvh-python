@@ -1,4 +1,5 @@
 import re
+import copy
 
 
 class BvhNode:
@@ -75,6 +76,20 @@ class Bvh:
                 node_stack[-1].add_child(node)
             if item[0] == 'Frame' and item[1] == 'Time:':
                 frame_time_found = True
+                
+    def __getitem__(self, x):
+        if type(x) is int:
+            frames = self.frames[[round(x/(1000*self.frame_time))]]
+        elif type(x) is slice:
+            start_frame = round(x.start/(1000*self.frame_time))
+            end_frame = round(x.stop/(1000*self.frame_time))
+            frames = self.frames[start_frame:end_frame:x.step]
+        else:
+            raise KeyError
+        
+        new_bvh = copy.deepcopy(self)
+        new_bvh.frames = frames
+        return new_bvh
 
     def search(self, *items):
         found_nodes = []
@@ -247,6 +262,7 @@ class Bvh:
         depth -= 1
         return data, depth
     
-    def save(self, save_path):
-        with open(save_path, 'w') as f:
+    def save(self, out_f):
+        with open(out_f, 'w') as f:
             f.write(self.raw_data)
+            
