@@ -50,21 +50,12 @@ class Bvh:
         self.tokenize()
 
     def tokenize(self):
-        first_round = []
-        accumulator = ''
-        for char in self.data:
-            if char not in ('\n', '\r'):
-                accumulator += char
-            elif accumulator:
-                    first_round.append(re.split('\\s+', accumulator.strip()))
-                    accumulator = ''
+        lines = re.split('\n|\r', self.data)
+        first_round = [re.split('\\s+', line.strip()) for line in lines[:-1]]
         node_stack = [self.root]
-        frame_time_found = False
         node = None
-        for item in first_round:
-            if frame_time_found:
-                self.frames.append(item)
-                continue
+        data_start_idx = 0
+        for line, item in enumerate(first_round):
             key = item[0]
             if key == '{':
                 node_stack.append(node)
@@ -74,7 +65,9 @@ class Bvh:
                 node = BvhNode(item)
                 node_stack[-1].add_child(node)
             if item[0] == 'Frame' and item[1] == 'Time:':
-                frame_time_found = True
+                data_start_idx = line
+                break
+        self.frames = [[float(scalar) for scalar in line] for line in first_round[data_start_idx+1:]]
 
     def search(self, *items):
         found_nodes = []
