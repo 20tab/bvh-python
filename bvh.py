@@ -246,7 +246,7 @@ class Bvh:
         data += f"Frame Time:\t{self.frame_rate}\n"
 
         for frame in self.frames:
-            data += "\t".join(frame) + "\n"
+            data += "\t".join(map(str, frame)) + "\n"
 
         return data
 
@@ -265,6 +265,6 @@ class Bvh:
         depth -= 1
         return data, depth
 
-    def export(self, out_f):
-        with open(out_f, "w") as f:
+    def export(self, file):
+        with open(file, "w") as f:
             f.write(self.raw_data)
