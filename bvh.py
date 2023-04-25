@@ -3,7 +3,6 @@ import copy
 
 
 class BvhNode:
-
     def __init__(self, value=[], parent=None):
         self.value = value
         self.children = []
@@ -43,12 +42,20 @@ class BvhNode:
 
 
 class Bvh:
-
     def __init__(self, data):
         self.data = data
         self.root = BvhNode()
         self.frames = []
         self.tokenize()
+
+    @classmethod
+    def from_file(cls, filename):
+        with open(filename) as f:
+            mocap = cls(f.read())
+        return mocap
+
+    def __len__(self):
+        return round(self.nframes * 1000 / self.frame_rate)
 
     def tokenize(self):
         first_round = []
@@ -79,10 +86,13 @@ class Bvh:
                 
     def __getitem__(self, x):
         if type(x) is int:
-            frames = self.frames[[round(x/(1000*self.frame_time))]]
+            frames = self.frames[[round(x/(1000*self.frame_rate))]]
         elif type(x) is slice:
-            start_frame = round(x.start/(1000*self.frame_time))
-            end_frame = round(x.stop/(1000*self.frame_time))
+            start_time = x.start if x.start is not None else 0
+            end_time = x.stop if x.stop is not None else -1
+
+            start_frame = round(start_time/(1000*self.frame_rate))
+            end_frame = round(end_time/(1000*self.frame_rate))
             frames = self.frames[start_frame:end_frame:x.step]
         else:
             raise KeyError
@@ -219,13 +229,10 @@ class Bvh:
 
     @property
     def nframes(self):
-        try:
-            return int(next(self.root.filter('Frames:')).value[1])
-        except StopIteration:
-            raise LookupError('number of frames not found')
+        return len(self.frames)
 
     @property
-    def frame_time(self):
+    def frame_rate(self):
         try:
             return float(next(self.root.filter('Frame')).value[2])
         except StopIteration:
@@ -240,7 +247,7 @@ class Bvh:
         
         data += "MOTION\n"
         data += f"Frames:\t{self.nframes}\n"
-        data += f"Frame Time:\t{self.frame_time}\n"
+        data += f"Frame Time:\t{self.frame_rate}\n"
         
         for frame in self.frames:
             data += "\t".join(frame)+"\n"
@@ -262,7 +269,7 @@ class Bvh:
         depth -= 1
         return data, depth
     
-    def save(self, out_f):
+    def export(self, out_f):
         with open(out_f, 'w') as f:
             f.write(self.raw_data)
             

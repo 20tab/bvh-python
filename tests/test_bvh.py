@@ -98,7 +98,7 @@ class TestBvh(unittest.TestCase):
     def test_frame_time(self):
         with open('tests/test_freebvh.bvh') as f:
             mocap = Bvh(f.read())
-        self.assertEqual(mocap.frame_time, 0.0333333)
+        self.assertEqual(mocap.frame_rate, 0.0333333)
 
     def test_nframes2(self):
         with open('tests/test_mocapbank.bvh') as f:
