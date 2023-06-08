@@ -112,7 +112,17 @@ class Bvh:
                 iterate_joints(child)
         iterate_joints(next(self.root.filter('ROOT')))
         return joints
+    
+    def get_channel_names(self):
+        joints = []
 
+        def iterate_joints(joint):
+            joints.append(joint['CHANNELS'][1:])
+            for child in joint.filter('JOINT'):
+                iterate_joints(child)
+        iterate_joints(next(self.root.filter('ROOT')))
+        return joints
+   
     def joint_direct_children(self, name):
         joint = self.get_joint(name)
         return [child for child in joint.filter('JOINT')]
