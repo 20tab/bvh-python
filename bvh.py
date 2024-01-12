@@ -1,5 +1,5 @@
-import re
 import copy
+import re
 
 
 class BvhNode:
@@ -43,10 +43,8 @@ class BvhNode:
 
 class Bvh:
     def __init__(self, data):
-        self.data = data
         self.root = BvhNode()
-        self.frames = []
-        self.tokenize()
+        self.frames = self.tokenize(data)
 
     @classmethod
     def from_file(cls, filename):
@@ -55,10 +53,11 @@ class Bvh:
         return mocap
 
     def __len__(self):
-        return round(self.nframes * 1000 / self.frame_rate)
+        """Return the length of the animation in milliseconds"""
+        return round(self.nframes * self.frame_time * 1000)
 
-    def tokenize(self):
-        lines = re.split("\n|\r", self.data)
+    def tokenize(self, data):
+        lines = re.split("\n|\r", data)
         first_round = [re.split("\\s+", line.strip()) for line in lines[:-1]]
         node_stack = [self.root]
         node = None
@@ -75,20 +74,20 @@ class Bvh:
             if item[0] == "Frame" and item[1] == "Time:":
                 data_start_idx = line
                 break
-        self.frames = [
+        return [
             [float(scalar) for scalar in line]
             for line in first_round[data_start_idx + 1 :]
         ]
 
     def __getitem__(self, x):
-        if type(x) is int:
-            frames = self.frames[[round(x / (1000 * self.frame_rate))]]
-        elif type(x) is slice:
+        if isinstance(x, int):
+            frames = self.frames[[round(x / (1000 * self.frame_time))]]
+        elif isinstance(x, slice):
             start_time = x.start if x.start is not None else 0
             end_time = x.stop if x.stop is not None else -1
 
-            start_frame = round(start_time / (1000 * self.frame_rate))
-            end_frame = round(end_time / (1000 * self.frame_rate))
+            start_frame = round(start_time / (1000 * self.frame_time))
+            end_frame = round(end_time / (1000 * self.frame_time))
             frames = self.frames[start_frame : end_frame : x.step]
         else:
             raise KeyError
@@ -228,11 +227,15 @@ class Bvh:
         return len(self.frames)
 
     @property
-    def frame_rate(self):
+    def frame_time(self):
         try:
             return float(next(self.root.filter("Frame")).value[2])
         except StopIteration:
             raise LookupError("frame time not found")
+
+    @property
+    def frame_rate(self):
+        return 1 / self.frame_time
 
     @property
     def raw_data(self):
@@ -243,7 +246,7 @@ class Bvh:
 
         data += "MOTION\n"
         data += f"Frames:\t{self.nframes}\n"
-        data += f"Frame Time:\t{self.frame_rate}\n"
+        data += f"Frame Time:\t{self.frame_time}\n"
 
         for frame in self.frames:
             data += "\t".join(map(str, frame)) + "\n"
